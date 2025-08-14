@@ -1,0 +1,18 @@
+telegram:
+  bot_token: "YOUR_TELEGRAM_BOT_TOKEN"
+
+cloudflare:
+  account_id: "YOUR_CLOUDFLARE_ACCOUNT_ID"
+  api_token: "YOUR_CLOUDFLARE_API_TOKEN"
+
+authorized_users:
+  - 123456789  # 替换为实际的用户ID
+  - 987654321  # 添加更多授权用户
+
+admin_id: 123456789  # 管理员用户ID
+
+# 日志配置
+logging:
+  level: "info"           # 日志级别: debug, info, warn, error, fatal
+  to_file: true           # 是否输出到文件
+  file_path: "logs/bot.log"  # 日志文件路径
