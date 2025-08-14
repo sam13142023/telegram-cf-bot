@@ -1,0 +1,107 @@
+name: Build Multi-Platform Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          # Windows ARM64 support is limited, uncomment if needed
+          # - goos: windows
+          #   goarch: arm64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23.4'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Set binary name
+      id: binary_name
+      run: |
+        BINARY_NAME=telegram-cf-bot
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          BINARY_NAME="${BINARY_NAME}.exe"
+        fi
+        echo "binary_name=${BINARY_NAME}" >> $GITHUB_OUTPUT
+        echo "archive_name=telegram-cf-bot_${{ matrix.goos }}_${{ matrix.goarch }}" >> $GITHUB_OUTPUT
+
+    - name: Build binary
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+        CGO_ENABLED: 0
+      run: |
+        go build -v -ldflags="-s -w -X main.version=${{ github.ref_name }}" -o ${{ steps.binary_name.outputs.binary_name }} .
+
+    - name: Create archive
+      run: |
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          zip -r ${{ steps.binary_name.outputs.archive_name }}.zip ${{ steps.binary_name.outputs.binary_name }} README.md config.yaml.example
+        else
+          tar -czf ${{ steps.binary_name.outputs.archive_name }}.tar.gz ${{ steps.binary_name.outputs.binary_name }} README.md config.yaml.example
+        fi
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.binary_name.outputs.archive_name }}
+        path: |
+          ${{ steps.binary_name.outputs.archive_name }}.*
+
+    - name: Upload to Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ${{ steps.binary_name.outputs.archive_name }}.*
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Optional: Create a summary job
+  build-summary:
+    name: Build Summary
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Build Summary
+      run: |
+        echo "## Build Results" >> $GITHUB_STEP_SUMMARY
+        echo "Built for the following platforms:" >> $GITHUB_STEP_SUMMARY
+        echo "- Linux (amd64, arm64)" >> $GITHUB_STEP_SUMMARY
+        echo "- Windows (amd64, arm64)" >> $GITHUB_STEP_SUMMARY
+        echo "- macOS (amd64, arm64)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.build.result }}" = "success" ]; then
+          echo "✅ All builds completed successfully!" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Some builds failed. Check the individual job logs." >> $GITHUB_STEP_SUMMARY
+        fi
