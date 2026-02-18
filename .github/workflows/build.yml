@@ -56,14 +56,14 @@ jobs:
         GOARCH: ${{ matrix.goarch }}
         CGO_ENABLED: 0
       run: |
-        go build -v -ldflags="-s -w -X main.version=${{ github.ref_name }}" -o ${{ steps.binary_name.outputs.binary_name }} .
+        go build -v -ldflags="-s -w -X main.version=${{ github.ref_name }}" -o ${{ steps.binary_name.outputs.binary_name }} ./cmd/bot
 
     - name: Create archive
       run: |
         if [ "${{ matrix.goos }}" = "windows" ]; then
-          zip -r ${{ steps.binary_name.outputs.archive_name }}.zip ${{ steps.binary_name.outputs.binary_name }} README.md config.yaml.example LICENSE
+          zip -r ${{ steps.binary_name.outputs.archive_name }}.zip ${{ steps.binary_name.outputs.binary_name }} README.md README_CN.md config.yaml.example LICENSE
         else
-          tar -czf ${{ steps.binary_name.outputs.archive_name }}.tar.gz ${{ steps.binary_name.outputs.binary_name }} README.md config.yaml.example LICENSE
+          tar -czf ${{ steps.binary_name.outputs.archive_name }}.tar.gz ${{ steps.binary_name.outputs.binary_name }} README.md README_CN.md config.yaml.example LICENSE
         fi
 
     - name: Upload artifacts
