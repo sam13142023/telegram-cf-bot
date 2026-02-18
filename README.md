@@ -1,28 +1,24 @@
-# Telegram to Cloudflare Images Bot
+# Telegram Image Hosting Bot
 
 [![Go Version](https://img.shields.io/badge/Go-1.23+-blue.svg)](https://golang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-
-A high-quality Telegram bot for uploading images to Cloudflare Images with proper authorization, validation, and logging.
 
 ## ✨ Features
 
 - 🔐 **User Authorization** - Only authorized users can upload images
 - ✅ **Image Validation** - Validates images against Cloudflare Images requirements
-- 📤 **Cloudflare Integration** - Direct upload to Cloudflare Images API
 - 📝 **Structured Logging** - Comprehensive logging with logrus
-- 🛡️ **Graceful Shutdown** - Proper signal handling and cleanup
-- ⚡ **Concurrent Safe** - Thread-safe operations with proper mutex usage
+- ⚡ **Concurrent Safe** - Thread-safe operations
 
 ## 🎯 Supported Image Formats and Limits
 
 Following Cloudflare Images API specifications:
-- **Formats**: JPEG, PNG, GIF (including animated)
+- **Formats**: JPEG, PNG, ~~GIF~~ (Not supported due to Telegram API limitations)
 - **Max Dimensions**: 12,000 × 12,000 pixels
 - **Max File Size**: 10 MB
-- **Max Pixel Area**: 
-  - 100 million pixels (static images)
-  - 50 million pixels (animated GIFs)
+- **Max Pixel Area**:
+  - Static images: 100 million pixels
+  - Animated images: 50 million pixels
 
 ## 🚀 Quick Start
 
@@ -123,64 +119,6 @@ make dev
 1. Message [@userinfobot](https://t.me/userinfobot)
 2. Your user ID will be displayed
 
-## 🏗️ Project Structure
-
-```
-telegram-cf-bot/
-├── cmd/
-│   └── bot/
-│       └── main.go              # Application entry point
-├── internal/
-│   ├── bot/
-│   │   └── bot.go               # Telegram bot implementation
-│   ├── cloudflare/
-│   │   └── client.go            # Cloudflare API client
-│   ├── config/
-│   │   └── config.go            # Configuration management
-│   ├── constants/
-│   │   └── constants.go         # Application constants
-│   ├── errors/
-│   │   └── errors.go            # Custom error types
-│   ├── logger/
-│   │   └── logger.go            # Structured logging
-│   └── validator/
-│       └── validator.go         # Image validation
-├── config.yaml.example          # Example configuration
-├── Makefile                     # Build automation
-├── go.mod                       # Go module definition
-└── README.md                    # This file
-```
-
-## 🔧 Development
-
-### Available Make Commands
-
-```bash
-make build       # Build for current platform
-make build-all   # Build for all platforms (darwin/linux/windows)
-make test        # Run tests
-make run         # Build and run
-make dev         # Run in development mode
-make lint        # Run linters
-make fmt         # Format code
-make clean       # Clean build artifacts
-make help        # Show all commands
-```
-
-### Code Quality Improvements
-
-This rebuilt version includes several code quality improvements:
-
-1. **Clean Architecture**: Proper separation of concerns with internal packages
-2. **Custom Error Types**: Structured error handling with error wrapping
-3. **Context Management**: Proper context propagation for cancellation
-4. **Graceful Shutdown**: Signal handling with proper cleanup
-5. **Structured Logging**: Consistent logging with fields and levels
-6. **Configuration Validation**: Input validation with meaningful errors
-7. **Concurrent Safety**: Thread-safe operations with sync primitives
-8. **Constants**: Centralized constants for limits and timeouts
-9. **Interface Segregation**: Clean interfaces for testability
-
 ## 📝 Logging
 
 Logs are written to both console and file (if configured). Log levels:
@@ -212,18 +150,48 @@ tail -f logs/bot.log
 - Verify Cloudflare API Token has Images:Edit permission
 - Check logs for detailed error messages
 
+## 🔧 Development
+
+### 🏗️ Project Structure
+
+```
+telegram-cf-bot/
+├── cmd/
+│   └── bot/
+│       └── main.go              # Application entry point
+├── internal/
+│   ├── bot/
+│   │   └── bot.go               # Telegram bot implementation
+│   ├── cloudflare/
+│   │   └── client.go            # Cloudflare API client
+│   ├── config/
+│   │   └── config.go            # Configuration management
+│   ├── constants/
+│   │   └── constants.go         # Application constants
+│   ├── errors/
+│   │   └── errors.go            # Custom error types
+│   ├── logger/
+│   │   └── logger.go            # Structured logging
+│   └── validator/
+│       └── validator.go         # Image validation
+├── config.yaml.example          # Example configuration
+├── Makefile                     # Build automation
+├── go.mod                       # Go module definition
+└── README.md                    # This file
+```
+
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
+Contributions welcome! Please follow these steps:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -m 'Add new feature'`)
+4. Push to branch (`git push origin feature/new-feature`)
 5. Open a Pull Request
 
 ## 📞 Support

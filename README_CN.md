@@ -3,21 +3,17 @@
 [![Go 版本](https://img.shields.io/badge/Go-1.23+-blue.svg)](https://golang.org/)
 [![许可证](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-一个高质量的 Telegram 机器人，用于将图片上传到 Cloudflare Images，具有完整的用户授权、图片验证和日志记录功能。
-
 ## ✨ 功能特点
 
 - 🔐 **用户授权** - 只有授权用户才能上传图片
 - ✅ **图片验证** - 验证图片是否符合 Cloudflare Images 的要求
-- 📤 **Cloudflare 集成** - 直接上传到 Cloudflare Images API
 - 📝 **结构化日志** - 使用 logrus 记录详细日志
-- 🛡️ **优雅关闭** - 支持信号处理和清理工作
-- ⚡ **并发安全** - 使用互斥锁确保线程安全
+- ⚡ **并发安全** - 线程安全
 
 ## 🎯 支持的图片格式和限制
 
 遵循 Cloudflare Images API 规范：
-- **格式**: JPEG, PNG, GIF（包括动图）
+- **格式**: JPEG, PNG, ~~GIF~~（由于telegram API限制，不支持）
 - **最大尺寸**: 12,000 × 12,000 像素
 - **最大文件大小**: 10 MB
 - **最大像素面积**:
@@ -123,64 +119,6 @@ make dev
 1. 联系 [@userinfobot](https://t.me/userinfobot)
 2. 将显示你的用户 ID
 
-## 🏗️ 项目结构
-
-```
-telegram-cf-bot/
-├── cmd/
-│   └── bot/
-│       └── main.go              # 应用程序入口
-├── internal/
-│   ├── bot/
-│   │   └── bot.go               # Telegram 机器人实现
-│   ├── cloudflare/
-│   │   └── client.go            # Cloudflare API 客户端
-│   ├── config/
-│   │   └── config.go            # 配置管理
-│   ├── constants/
-│   │   └── constants.go         # 应用常量
-│   ├── errors/
-│   │   └── errors.go            # 自定义错误类型
-│   ├── logger/
-│   │   └── logger.go            # 结构化日志
-│   └── validator/
-│       └── validator.go         # 图片验证
-├── config.yaml.example          # 示例配置
-├── Makefile                     # 构建自动化
-├── go.mod                       # Go 模块定义
-└── README.md                    # 本文件
-```
-
-## 🔧 开发
-
-### 可用的 Make 命令
-
-```bash
-make build       # 为当前平台构建
-make build-all   # 为所有平台构建（darwin/linux/windows）
-make test        # 运行测试
-make run         # 构建并运行
-make dev         # 以开发模式运行
-make lint        # 运行代码检查
-make fmt         # 格式化代码
-make clean       # 清理构建产物
-make help        # 显示所有命令
-```
-
-### 代码质量改进
-
-这个重构版本包含以下代码质量改进：
-
-1. **整洁架构**：内部包职责分离清晰
-2. **自定义错误类型**：结构化错误处理，支持错误包装
-3. **上下文管理**：正确的上下文传播以支持取消操作
-4. **优雅关闭**：信号处理和适当的清理
-5. **结构化日志**：一致的字段和级别日志记录
-6. **配置验证**：有意义的错误信息的输入验证
-7. **并发安全**：使用同步原语的线程安全操作
-8. **常量**：限制和超时的集中式常量定义
-9. **接口隔离**：可测试性的清晰接口
-
 ## 📝 日志
 
 日志同时输出到控制台和文件（如果已配置）。日志级别：
@@ -211,6 +149,36 @@ tail -f logs/bot.log
 - 检查图片大小和尺寸（参见上面的限制）
 - 验证 Cloudflare API Token 是否具有 Images:Edit 权限
 - 查看日志获取详细的错误信息
+
+## 🔧 开发
+
+### 🏗️ 项目结构
+
+```
+telegram-cf-bot/
+├── cmd/
+│   └── bot/
+│       └── main.go              # 应用程序入口
+├── internal/
+│   ├── bot/
+│   │   └── bot.go               # Telegram 机器人实现
+│   ├── cloudflare/
+│   │   └── client.go            # Cloudflare API 客户端
+│   ├── config/
+│   │   └── config.go            # 配置管理
+│   ├── constants/
+│   │   └── constants.go         # 应用常量
+│   ├── errors/
+│   │   └── errors.go            # 自定义错误类型
+│   ├── logger/
+│   │   └── logger.go            # 结构化日志
+│   └── validator/
+│       └── validator.go         # 图片验证
+├── config.yaml.example          # 示例配置
+├── Makefile                     # 构建自动化
+├── go.mod                       # Go 模块定义
+└── README.md                    # 本文件
+```
 
 ## 📄 许可证
 
