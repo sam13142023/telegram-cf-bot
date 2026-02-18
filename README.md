@@ -1,217 +1,237 @@
-# Telegram to Cloudflare 图片上传bot
+# Telegram to Cloudflare Images Bot
 
-[![Go Version](https://img.shields.io/badge/Go-1.23.4-blue.svg)](https://golang.org/)
+[![Go Version](https://img.shields.io/badge/Go-1.23+-blue.svg)](https://golang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## ✨ 功能特性
+A high-quality Telegram bot for uploading images to Cloudflare Images with proper authorization, validation, and logging.
 
-- 🔐 **用户授权管理** - 经授权用户才能使用
-- ✅ **验证文件** - 验证图片是否符合 Cloudflare Images 的要求
-- 📝 **日志** - 支持多级别日志记录和文件输出
+## ✨ Features
 
-## 🎯 支持的图片格式和限制
+- 🔐 **User Authorization** - Only authorized users can upload images
+- ✅ **Image Validation** - Validates images against Cloudflare Images requirements
+- 📤 **Cloudflare Integration** - Direct upload to Cloudflare Images API
+- 📝 **Structured Logging** - Comprehensive logging with logrus
+- 🛡️ **Graceful Shutdown** - Proper signal handling and cleanup
+- ⚡ **Concurrent Safe** - Thread-safe operations with proper mutex usage
 
-根据 Cloudflare Images 的要求：
-- **格式支持**: JPEG、PNG、GIF
-- **最大尺寸**: 12,000 × 12,000 像素
-- **最大文件大小**: 10 MB
-- **最大像素数**: 1亿像素（静态图片）/ 5千万像素（动画GIF）
+## 🎯 Supported Image Formats and Limits
 
-## 🚀 快速开始
+Following Cloudflare Images API specifications:
+- **Formats**: JPEG, PNG, GIF (including animated)
+- **Max Dimensions**: 12,000 × 12,000 pixels
+- **Max File Size**: 10 MB
+- **Max Pixel Area**: 
+  - 100 million pixels (static images)
+  - 50 million pixels (animated GIFs)
 
-### 1. 环境要求
+## 🚀 Quick Start
 
-- Go 1.23.4 或更高版本
+### Prerequisites
+
+- Go 1.23 or higher
 - Telegram Bot Token
-- Cloudflare Account ID 和 API Token
+- Cloudflare Account ID and API Token
 
-### 2. 下载和安装
+### Installation
 
-#### 方式一：下载预编译版本
-从 [Releases](https://github.com/sam13142023/telegram-cf-bot/releases) 页面下载对应系统的可执行文件。
-
-#### 方式二：从源码编译
 ```bash
+# Clone the repository
 git clone https://github.com/sam13142023/telegram-cf-bot.git
 cd telegram-cf-bot
-go mod tidy
-go build -o telegram-cf-bot.exe .
+
+# Download dependencies
+make deps
+
+# Build the binary
+make build
 ```
 
-### 3. 配置bot
+### Configuration
 
-复制配置模板：
+Copy the example configuration:
+
 ```bash
 cp config.yaml.example config.yaml
 ```
 
-编辑 `config.yaml` 文件：
+Edit `config.yaml`:
+
 ```yaml
-# Telegram 机器人配置
+# Telegram Bot Configuration
 telegram:
   bot_token: "YOUR_TELEGRAM_BOT_TOKEN"
 
-# Cloudflare 配置
+# Cloudflare API Configuration
 cloudflare:
   account_id: "YOUR_CLOUDFLARE_ACCOUNT_ID"
   api_token: "YOUR_CLOUDFLARE_API_TOKEN"
 
-# 授权用户ID列表
+# Authorized Users (Telegram user IDs)
 authorized_users:
-  - 123456789  # 替换为实际的用户ID
-  - 987654321  # 可以添加多个用户
+  - 123456789
 
-# 管理员用户ID（可选）
+# Admin User ID (for user management)
 admin_id: 123456789
 
-# 日志配置
+# Logging Configuration
 logging:
-  level: "info"              # 日志级别: debug, info, warn, error, fatal
-  to_file: true              # 是否输出到文件
-  file_path: "logs/bot.log"  # 日志文件路径
+  level: "info"              # debug, info, warn, error, fatal
+  to_file: true
+  file_path: "logs/bot.log"
 ```
 
-### 4. 获取的 Token 和 ID
-
-#### Telegram Bot Token
-1. 在 Telegram 中搜索 `@BotFather`
-2. 发送 `/newbot` 命令创建新机器人
-3. 按提示设置机器人名称和用户名
-4. 获得 Bot Token，格式类似：`123456789:ABCdefGHIjklMNOpqrsTUVwxyz`
-
-#### Cloudflare 配置
-1. **Account ID**：
-   - 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-   - 在右侧边栏找到 Account ID
-
-2. **API Token**：
-   - 进入 `My Profile` > `API Tokens`
-   - 点击 `Create Token`
-   - 使用 `Custom token` 模板
-   - 权限设置：`Cloudflare Images:Edit`
-   - 账户资源：`Include - 你的账户`
-
-#### 用户ID获取
-1. 在 Telegram 中搜索 `@userinfobot`
-2. 发送任意消息获取你的用户ID
-3. 将用户ID添加到配置文件的 `authorized_users` 列表中
-
-### 5. 运行机器人
+### Running
 
 ```bash
-# Windows
-telegram-cf-bot.exe
-
-# Linux/macOS
+# Run the binary
 ./telegram-cf-bot
+
+# Or use make
+make run
+
+# Development mode
+make dev
 ```
 
-## 📋 使用说明
+## 📖 Usage
 
-### 上传图片：
-   - **推荐方式**：以文件形式发送图片（保持原始质量）
-   - **压缩方式**：直接发送图片（可能被压缩，需确认上传）
+### Uploading Images
 
-### 命令列表
+1. **Recommended**: Send image as file (preserves original quality)
+2. **Alternative**: Send as photo (will prompt for confirmation)
 
-- `/start` - 启动机器人并显示使用说明
--  /auth && /unauth - 授权或取消授权用户
+### Commands
 
+- `/start` - Start the bot and see welcome message
+- `/auth <user_id>` - Add user to authorized list (admin only)
+- `/unauth <user_id>` - Remove user from authorized list (admin only)
 
-## 🛠️ 技术栈
+### Getting Required IDs
 
-- **语言**: Go 1.23.4
-- **Telegram库**: telebot v3.3.8
-- **配置解析**: gopkg.in/yaml.v3
-- **图片处理**: github.com/rwcarlsen/goexif
-- **日志系统**: github.com/sirupsen/logrus
+**Telegram Bot Token:**
+1. Message [@BotFather](https://t.me/botfather) on Telegram
+2. Use `/newbot` command
+3. Follow instructions to create bot and get token
 
-## 📝 日志系统
+**Cloudflare Credentials:**
+1. Log in to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. Find Account ID in the right sidebar
+3. Go to My Profile → API Tokens → Create Token
+4. Use Custom token with `Cloudflare Images:Edit` permission
 
-机器人内置完善的日志系统，支持：
-- 多级别日志（debug、info、warn、error、fatal）
-- 控制台和文件双重输出
-- 用户操作追踪
-- 错误详情记录
+**Telegram User ID:**
+1. Message [@userinfobot](https://t.me/userinfobot)
+2. Your user ID will be displayed
 
-查看日志文件：
+## 🏗️ Project Structure
+
+```
+telegram-cf-bot/
+├── cmd/
+│   └── bot/
+│       └── main.go              # Application entry point
+├── internal/
+│   ├── bot/
+│   │   └── bot.go               # Telegram bot implementation
+│   ├── cloudflare/
+│   │   └── client.go            # Cloudflare API client
+│   ├── config/
+│   │   └── config.go            # Configuration management
+│   ├── constants/
+│   │   └── constants.go         # Application constants
+│   ├── errors/
+│   │   └── errors.go            # Custom error types
+│   ├── logger/
+│   │   └── logger.go            # Structured logging
+│   └── validator/
+│       └── validator.go         # Image validation
+├── config.yaml.example          # Example configuration
+├── Makefile                     # Build automation
+├── go.mod                       # Go module definition
+└── README.md                    # This file
+```
+
+## 🔧 Development
+
+### Available Make Commands
+
+```bash
+make build       # Build for current platform
+make build-all   # Build for all platforms (darwin/linux/windows)
+make test        # Run tests
+make run         # Build and run
+make dev         # Run in development mode
+make lint        # Run linters
+make fmt         # Format code
+make clean       # Clean build artifacts
+make help        # Show all commands
+```
+
+### Code Quality Improvements
+
+This rebuilt version includes several code quality improvements:
+
+1. **Clean Architecture**: Proper separation of concerns with internal packages
+2. **Custom Error Types**: Structured error handling with error wrapping
+3. **Context Management**: Proper context propagation for cancellation
+4. **Graceful Shutdown**: Signal handling with proper cleanup
+5. **Structured Logging**: Consistent logging with fields and levels
+6. **Configuration Validation**: Input validation with meaningful errors
+7. **Concurrent Safety**: Thread-safe operations with sync primitives
+8. **Constants**: Centralized constants for limits and timeouts
+9. **Interface Segregation**: Clean interfaces for testability
+
+## 📝 Logging
+
+Logs are written to both console and file (if configured). Log levels:
+
+- `debug` - Detailed debugging information
+- `info` - General operational information
+- `warn` - Warning messages
+- `error` - Error conditions
+- `fatal` - Fatal errors (exits application)
+
+View logs:
 ```bash
 tail -f logs/bot.log
 ```
 
-## 🔧 开发指南
+## 🐛 Troubleshooting
 
-### 本地开发环境
+### Bot won't start
+- Check `config.yaml` exists and is valid
+- Verify Bot Token is correct
+- Ensure Cloudflare credentials have proper permissions
 
-```bash
-# 克隆项目
-git clone https://github.com/sam13142023/telegram-cf-bot.git
-cd telegram-cf-bot
+### "Unauthorized" errors
+- Add your Telegram user ID to `authorized_users`
+- Verify the ID with @userinfobot
 
-# 安装依赖
-go mod tidy
+### Upload failures
+- Check image size and dimensions (see limits above)
+- Verify Cloudflare API Token has Images:Edit permission
+- Check logs for detailed error messages
 
-# 运行开发版本
-go run main.go
-```
+## 📄 License
 
-### 构建生产版本
+MIT License - see [LICENSE](LICENSE) file for details.
 
-```bash
-# Windows
-GOOS=windows GOARCH=amd64 go build -o telegram-cf-bot.exe .
+## 🤝 Contributing
 
-# Linux
-GOOS=linux GOARCH=amd64 go build -o telegram-cf-bot .
+Contributions welcome! Please:
 
-# macOS
-GOOS=darwin GOARCH=amd64 go build -o telegram-cf-bot .
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## ❗ 常见问题
+## 📞 Support
 
-### Q: 机器人无法启动？
-**A**: 检查以下项目：
-- 配置文件 `config.yaml` 是否存在且格式正确
-- Bot Token 是否有效
-- Cloudflare API Token 是否有正确的权限
-
-### Q: 提示"没有权限使用机器人"？
-**A**: 确保你的用户ID已添加到 `authorized_users` 列表中。
-
-### Q: 图片上传失败？
-**A**: 检查：
-- 图片是否超过10MB或12000×12000像素
-- Cloudflare API Token 是否有 `Cloudflare Images:Edit` 权限
-- 网络连接是否正常
-
-### Q: 如何查看详细错误信息？
-**A**: 
-- 将日志级别设置为 `debug`
-- 查看 `logs/bot.log` 文件
-- 检查控制台输出
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request！
-
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
-
-## 📞 支持
-
-如果你在使用过程中遇到任何问题，可以：
-- 提交 [GitHub Issue](https://github.com/sam13142023/telegram-cf-bot/issues)
-- 查看项目文档
-- 检查日志文件获取详细错误信息
+- Open an [Issue](https://github.com/sam13142023/telegram-cf-bot/issues)
+- Check the logs for error details
+- Review this documentation
 
 ---
 
-⭐ 如果这个项目对你有帮助，请给它一个Star！
+⭐ Star this project if you find it useful!
